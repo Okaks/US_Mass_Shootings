@@ -1,0 +1,165 @@
+-- Looked through the data
+SELECT 
+*
+FROM mass_shootings
+ORDER BY incident_date DESC;
+
+-- The age column had some blanks. 
+-- replaced the null values with the appropirate age of the shooters
+
+-- Checking and replacing nulls
+SELECT
+	case_type,
+	age_of_shooter
+FROM mass_shootings
+WHERE age_of_shooter IS NULL;
+
+-- update age of sacramento shooter
+UPDATE mass_shootings
+SET age_of_shooter = 39
+WHERE age_of_shooter IS NULL AND case_type LIKE 'Sacramento%'
+
+-- Update age of Pensacola Naval base shooter
+UPDATE mass_shootings
+SET age_of_shooter = 21
+WHERE age_of_shooter IS NULL AND case_type LIKE 'Pensacola%'
+
+
+-- I checked to confirm that the age column had values.
+SELECT
+	case_type,
+	age_of_shooter
+FROM mass_shootings
+WHERE case_type LIKE 'Sacramento%';
+
+SELECT
+	case_type,
+	age_of_shooter
+FROM mass_shootings
+WHERE case_type LIKE 'Pensacola%'
+
+
+
+-- Replacing other values
+UPDATE mass_shootings
+SET race = 'Black'
+WHERE race LIKE 'Bla%' 
+
+UPDATE mass_shootings
+SET weapons_obtained_Legally = 'Yes'
+WHERE weapons_obtained_Legally LIKE '%Ye%' 
+
+UPDATE mass_shootings
+SET weapons_obtained_Legally = 'Unknown'
+WHERE weapons_obtained_Legally = 'N/A'
+
+-- Changed the name of a column
+ALTER TABLE mass_shootings
+	RENAME COLUMN weapons TO weapons_obtained_Legally;
+
+
+-- Checked through the entire dataset again before starting my analysis
+SELECT 
+*
+FROM mass_shootings;
+
+
+-- number of deaths by incident summary and age
+-- Incident summary year and location
+-- Case type incident summary and victims, Injured and deaths
+-- Incidents by race
+-- Incident by race ane health conditions
+-- Incidents summary by weapon type
+-- Injured and killed by year
+
+-- Case type, total victims, incident summary by date.
+SELECT
+	incident_date,
+	case_type,
+	total_victim,
+	incident_summary
+FROM mass_shootings
+ORDER BY 1 DESC;
+
+-- Age of shooter, breakdown of victims by case type
+SELECT
+	case_type,
+	location,
+	age_of_shooter,
+	fatalities,
+	injured
+FROM mass_shootings
+ORDER BY 3 ASC;
+
+
+-- Identifying the types of Guns used in these incidents
+SELECT
+	case_type
+	age_of_shooter,
+	weapon_type
+FROM mass_shootings;
+
+	
+SELECT
+	weapon_type,
+	COUNT(weapon_type) guns
+FROM mass_shootings
+GROUP BY 1
+ORDER BY 2 DESC;
+
+
+-- Identifying victims by the race of the shooters
+SELECT 
+	race,
+	SUM(total_victim) Sum_victims
+FROM mass_shootings
+GROUP BY 1
+ORDER BY 2 DESC;
+
+
+-- Identifying age of shooter signs of mental illness and weapon used
+SELECT
+age_of_shooter,
+	prior_sign_mental_ilness,
+	weapon_type,
+	total_victim
+FROM mass_shootings;
+
+
+-- Identifying victims in the last 6 years
+SELECT
+	year,
+	SUM(fatalities) deaths,
+	SUM(injured) injured,
+	SUM(total_victim) total
+FROM mass_shootings
+WHERE year >= 2017
+GROUP BY 1
+ORDER BY 1;
+
+
+-- total number of fatalities and injuries in the last 6 years
+SELECT
+ SUM(fatalities) deaths,
+ SUM(injured) injured
+FROM mass_shootings
+WHERE year >=2017;
+
+
+-- Identifying how perpetrators obatined their guns
+SELECT
+	COUNT(weapons_obtained_Legally)cases,
+	weapons_obtained_Legally
+FROM mass_shootings
+GROUP BY 2
+ORDER BY 1 DESC;
+
+-- Percentage that obatined their guns legally
+SELECT weapons_obtained_Legally,
+COUNT(weapons_obtained_Legally) cases,
+ROUND(COUNT(weapons_obtained_Legally)*100/SUM(count(weapons_obtained_Legally)) OVER(),1) percentage
+FROM mass_shootings
+GROUP by 1
+ORDER BY 3 DESC;
+
+
